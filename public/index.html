@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Dexcom CGM Monitor</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <!-- Bootstrap CSS (via CDN) -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <!-- Chart.js (via CDN) -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+  <div class="container mt-4">
+    <h1 class="text-center">Dexcom CGM Monitor</h1>
+    
+    <!-- Disclaimer Alert -->
+    <div class="alert alert-warning mt-3" role="alert">
+      Disclaimer: This is an unofficial tool and the information displayed is for informational purposes only. It is not intended to provide medical advice or be used as a trusted medical resource.
+    </div>
+    
+    <!-- Current status card -->
+    <div class="card mb-4">
+      <div class="card-body">
+        <h4>Current Status</h4>
+        <p id="currentStatus" class="h3"></p>
+        <p id="currentTendency" class="lead"></p>
+      </div>
+    </div>
+
+    <!-- Historical data graph card -->
+    <div class="card">
+      <div class="card-body">
+        <h4>Glucose Graph (Last 3 Hours)</h4>
+        <canvas id="glucoseChart"></canvas>
+      </div>
+    </div>
+  </div>
+
+  <!-- Bootstrap Bundle with Popper (via CDN) -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+  <script>
+    // Utility function to extract the numeric timestamp from a "DT" string.
+    function extractTimestamp(dtString) {
+      const match = dtString.match(/Date\((\d+)[^\)]*\)/);
+      return match ? parseInt(match[1]) : 0;
+    }
+
+    // Fetch Dexcom data from the API endpoint.
+    async function fetchData() {
+      try {
+        const response = await fetch('/api/data');
+        const data = await response.json();
+        return data;
+      } catch (error) {
+        console.error("Error fetching data:", error);
+      }
+    }
+
+    // Update UI elements with current status and tendency.
+    function updateUI(data) {
+      const currentStatusEl = document.getElementById('currentStatus');
+      const currentTendencyEl = document.getElementById('currentTendency');
+      
+      if (data.current) {
+        currentStatusEl.textContent = `${data.current.mg_dL} mg/dL (${data.current.mmol_L} mmol/L)`;
+      } else {
+        currentStatusEl.textContent = "Data not available";
+      }
+      
+      currentTendencyEl.textContent = `Tendency (Last 30 min): ${data.tendency} ${data.visualTendency}`;
+    }
+
+    // Render the Chart.js line chart.
+    function renderChart(data) {
+      // Sort the history array in ascending order by timestamp.
+      const sortedHistory = data.history.slice().sort((a, b) => {
+        return extractTimestamp(a.raw.DT) - extractTimestamp(b.raw.DT);
+      });
+
+      // Build labels and data arrays from the sorted readings.
+      const labels = sortedHistory.map(reading => {
+        const date = new Date(extractTimestamp(reading.raw.DT));
+        return date.toLocaleTimeString();
+      });
+      const glucoseValues = sortedHistory.map(reading => reading.mg_dL);
+
+      // Set individual point colors:
+      // Red for values below 70, purple for values above 180, otherwise use a default color.
+      const pointColors = glucoseValues.map(value => {
+        if (value < 70) return 'red';
+        else if (value > 180) return 'purple';
+        else return 'rgba(75, 192, 192, 1)';
+      });
+
+      const ctx = document.getElementById('glucoseChart').getContext('2d');
+      new Chart(ctx, {
+        type: 'line',
+        data: {
+          labels: labels,
+          datasets: [{
+            label: 'Glucose (mg/dL)',
+            data: glucoseValues,
+            fill: false,
+            borderColor: 'rgba(75, 192, 192, 1)',
+            tension: 0.1,
+            pointRadius: 4,
+            pointHoverRadius: 6,
+            pointBackgroundColor: pointColors
+          }]
+        },
+        options: {
+          responsive: true,
+          plugins: {
+            tooltip: {
+              callbacks: {
+                title: (tooltipItems) => 'Time: ' + tooltipItems[0].label,
+                label: (tooltipItem) => 'Glucose: ' + tooltipItem.parsed.y + ' mg/dL'
+              }
+            }
+          },
+          scales: {
+            x: {
+              title: {
+                display: true,
+                text: 'Time'
+              }
+            },
+            y: {
+              title: {
+                display: true,
+                text: 'Glucose (mg/dL)'
+              }
+            }
+          }
+        }
+      });
+    }
+
+    // Initialize UI and refresh data every minute.
+    async function init() {
+      const data = await fetchData();
+      updateUI(data);
+      renderChart(data);
+    }
+
+    init();
+    setInterval(init, 60000);
+  </script>
+</body>
+</html>

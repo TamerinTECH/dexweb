@@ -1,4 +1,3 @@
-// index.js
 require('dotenv').config();
 const { Dexcom, parseGlucoseReading } = require('./dexcom');
 
