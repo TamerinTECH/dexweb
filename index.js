@@ -14,6 +14,11 @@ app.use(express.static(path.join(__dirname, "public")));
 // --- Authentication Middleware ---
 // This middleware uses HTTP Basic Authentication.
 app.use((req, res, next) => {
+  if (process.env.WEB_PASSWORD?.length === 0) {
+    // No password set, skip authentication.
+    return next();
+  }
+  
   // Get the Authorization header.
   const authHeader = req.headers.authorization;
   if (!authHeader) {

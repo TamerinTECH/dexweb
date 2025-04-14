@@ -43,8 +43,9 @@ This project is an open source Node.js web application to retrieve and display r
    DEXCOM_USERNAME="dexcom-username"
    DEXCOM_PASSWORD="dexcom-pasword"
    DEXCOM_REGION="eu"  # Set as "us", "ous", "jp", etc. accordingly.
-   WEB_PASSWORD="local-password"
-   PORT=3000          # Optional: defaults to 3000 if not specified.
+   WEB_PASSWORD="local-password" # this is the password you will use to access this web app - you can leave it empty for no password
+   ```
+   PORT=3000          
    ```
 
    > **Note:**  
@@ -55,7 +56,7 @@ This project is an open source Node.js web application to retrieve and display r
 1. **Start the Server**
 
    ```bash
-   node server.js
+   node index.js
    ```
 
 2. **Access the Web App**
@@ -65,7 +66,7 @@ This project is an open source Node.js web application to retrieve and display r
 
 ## Project Structure
 
-- **server.js**  
+- **index.js**  
   The main entry point that sets up the Express server, handles API endpoints, and protects the UI route using HTTP Basic Authentication.
 
 - **dexcom.js**  
@@ -75,6 +76,13 @@ This project is an open source Node.js web application to retrieve and display r
   Contains static assets, including:
   - **index.html**: The main UI page built with Bootstrap and Chart.js.
   - Other CSS/JS assets if needed.
+
+- **demo-local.js**
+  A demo file that simulates Dexcom data for local testing. This is useful if you want to test the UI without needing to connect to the Dexcom API.
+  Configure the .env file and run it using:
+  ```bash
+  node demo-local.js
+  ```
 
 ## API Endpoint
 

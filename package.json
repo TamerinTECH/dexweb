@@ -1,15 +1,26 @@
 {
-  "name": "dexcomcommunity",
+  "name": "dexweb",
   "version": "1.0.0",
   "main": "index.js",
   "scripts": {
+    "start": "node index.js",
+    "local": "node demo-local.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
-  "keywords": [],
-  "author": "",
-  "license": "ISC",
+  "keywords": [
+    "dexcom",
+    "follow",
+    "cgm",
+    "glucose",
+    "nodejs",
+    "express",
+    "health",
+    "monitor"
+  ],
+  "author": "TamerinTECH GmbH",
+  "license": "MIT",
+  "description": "(unoffical) - Node.js web application to retrieve and display real-time Dexcom CGM data",
   "type": "commonjs",
-  "description": "",
   "dependencies": {
     "axios": "^1.8.4",
     "axios-cookiejar-support": "^5.0.5",
