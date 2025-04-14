@@ -2,6 +2,8 @@
 
 This project is an open source Node.js web application to retrieve and display real‑time Dexcom CGM data. I created it due to my personal need to monitor the Dexcom data of a family member using a web app—mainly because Dexcom Follow does not work on my device. This project is primarily based on [pydexcom](https://github.com/gagebenne/pydexcom) but has been converted to Node.js using ChatGPT. It is a non‑commercial project, so feel free to fork, extend, or collaborate!
 
+![Graph](/public/graph.png)
+
 ## Features
 
 - **Real‑Time Data**: Fetch current and historical glucose readings from Dexcom.
